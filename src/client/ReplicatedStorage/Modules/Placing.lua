@@ -3,45 +3,25 @@
 local Placing = {};
 Placing.__index = Placing;
 
-local SpawnCF = nil;
-local Height = 0;
+local Distance = 10;
+
+local MaxDistance = 20;
+local MinDistance = 5;
 
 --||
 
 --|| Functions
 
-local function MouseRay(BlackList: Instance)
-    local UIS = game:GetService("UserInputService");
-    local Camera = workspace.CurrentCamera;
-
-    local MousePos = UIS:GetMouseLocation();
-    local MouseRC = Camera:ViewportPointToRay(MousePos.X, MousePos.Y);
-
-    local RayParams = RaycastParams.new();
-    RayParams.FilterType = Enum.RaycastFilterType.Blacklist;
-    RayParams.FilterDescendantsInstances = {BlackList};
-
-    local RayResult = workspace:Raycast(MouseRC.Origin, MouseRC.Direction * 500, RayParams);
-
-    return RayResult;
-end
-
 local function HoldPart(TargetPart: Instance)
     local player = game.Players.LocalPlayer;
-    local character = player.Character;
     local mouse = player:GetMouse();
+    local character = player.Character;
 
-    local ReplicatedStorage = game.ReplicatedStorage;
-    local Remotes = ReplicatedStorage.Remotes;
+    local pos = character.HumanoidRootPart.Position + (mouse.Hit.Position - character.HumanoidRootPart.Position).Unit * Distance;
+    TargetPart:WaitForChild("BodyPosition").Position = pos;
+    TargetPart.BodyGyro.CFrame = TargetPart.CFrame;
 
-    local Size = Vector3.new(TargetPart.Size.X, TargetPart.Size.Y, TargetPart.Size.Z);
-
-    mouse.TargetFilter = TargetPart;
-
-    SpawnCF = CFrame.new(mouse.Hit.Position.X, mouse.Hit.Position.Y + Size.Y / 2 + Height, mouse.Hit.Position.Z);
-
-    Remotes.PickUpPart:FireServer(SpawnCF, TargetPart);
-    Remotes.ChangePartOwner:FireServer(true, TargetPart);
+    TargetPart.BodyGyro.CFrame = TargetPart.BodyGyro.CFrame * CFrame.Angles(0, 0.1, 0);
 end
 
 --||
@@ -78,8 +58,12 @@ function Placing:Toggle()
     
                 if TargetPart:GetAttribute("HeldBy") == "" then
                     TargetPart:SetAttribute("IsPickedUp", true);
+
+                    Remotes.PickUpPart:FireServer(TargetPart, false);
+                    Remotes.ChangePartOwner:FireServer(true, TargetPart);
+
                     RunService:BindToRenderStep("HoldBlock", Enum.RenderPriority.Input.Value, function() HoldPart(TargetPart) end);
-                end      
+                end
             end
         end
     else
@@ -87,10 +71,28 @@ function Placing:Toggle()
             self.Mouse.TargetFilter = nil;
 
             self.Values.PartSelected.Value:SetAttribute("IsPickedUp", false);
+            
+            Remotes.PickUpPart:FireServer(self.Values.PartSelected.Value, true);
             Remotes.ChangePartOwner:FireServer(false, self.Values.PartSelected.Value);
 
             RunService:UnbindFromRenderStep("HoldBlock");
         end
+    end
+end
+
+function Placing:ZoomOut()
+    Distance += 1;
+
+    if Distance >= MaxDistance then
+        Distance = MaxDistance;
+    end
+end
+
+function Placing:ZoomIn()
+    Distance -= 1;
+
+    if Distance <= MinDistance then
+        Distance = MinDistance;
     end
 end
 
