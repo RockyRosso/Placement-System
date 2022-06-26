@@ -1,0 +1,26 @@
+{
+  "name": "BlockPlacingModule",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "Modules": {
+        "$path": "src/client/ReplicatedStorage/Modules"
+      }
+    },
+
+    "ServerScriptService": {
+      "BPLogic": {
+        "$path": "src/server/ServerScriptService/BPLogic"
+      }
+    },
+
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "ClientBPLogic": {
+          "$path": "src/client/StarterPlayer/ClientBPLogic"
+        }
+      }
+    }
+  }
+}
