@@ -17,8 +17,6 @@ local PlacingModule = require(Modules.Placing).new();
 UIS.InputBegan:Connect(function(input, gameProcessedEvent)
     if input.KeyCode == Enum.KeyCode.E then
         PlacingModule:Toggle();
-    elseif input.KeyCode == Enum.KeyCode.Q then
-        PlacingModule:Throw();
     end
 end)
 
