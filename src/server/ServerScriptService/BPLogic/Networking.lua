@@ -34,6 +34,9 @@ for _, object in ipairs(game.ReplicatedStorage.Remotes:GetChildren()) do
                     TargetPart.CanCollide = false;
                     TargetPart.Anchored = false;
 
+                    TargetPart:SetAttribute("HeldBy", plr.Name);
+                    plr.Values.PartSelected.Value = TargetPart;
+
                     TargetPart:SetNetworkOwner(plr);
                 else
                     TargetPart.CanCollide = true;
@@ -45,20 +48,23 @@ for _, object in ipairs(game.ReplicatedStorage.Remotes:GetChildren()) do
                         end
                     end
 
-
-                end
-
-            elseif rEvent.Name == "ChangePartOwner" then
-                local SetNameToPLR = arg1;
-                local TargetPart = arg2;
-
-                if SetNameToPLR == true then
-                    TargetPart:SetAttribute("HeldBy", plr.Name);
-                    plr.Values.PartSelected.Value = TargetPart;
-                else
                     TargetPart:SetAttribute("HeldBy", "");
                     plr.Values.PartSelected.Value = nil;
                 end
+            elseif rEvent.Name == "Throw" then
+                local TargetPart = arg1;
+                local character = plr.Character;
+
+                TargetPart.Anchored = false;
+
+                local BodyVel = Instance.new("BodyVelocity");
+                BodyVel.MaxForce = Vector3.new(40000, 5, 40000);
+                BodyVel.Velocity = character.HumanoidRootPart.CFrame.lookVector * 100;
+                BodyVel.Parent = TargetPart;
+
+                game:GetService("Debris"):AddItem(BodyVel, 0.1);
+
+                TargetPart:SetNetworkOwner(nil);
             end
         end)
     end
