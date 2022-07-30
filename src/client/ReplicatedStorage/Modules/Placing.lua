@@ -60,7 +60,6 @@ function Placing:Toggle()
                     TargetPart:SetAttribute("IsPickedUp", true);
 
                     Remotes.PickUpPart:FireServer(TargetPart, false);
-                    Remotes.ChangePartOwner:FireServer(true, TargetPart);
 
                     RunService:BindToRenderStep("HoldBlock", Enum.RenderPriority.Input.Value, function() HoldPart(TargetPart) end);
                 end
@@ -73,10 +72,20 @@ function Placing:Toggle()
             self.Values.PartSelected.Value:SetAttribute("IsPickedUp", false);
             
             Remotes.PickUpPart:FireServer(self.Values.PartSelected.Value, true);
-            Remotes.ChangePartOwner:FireServer(false, self.Values.PartSelected.Value);
 
             RunService:UnbindFromRenderStep("HoldBlock");
         end
+    end
+end
+
+function Placing:Throw()
+    local ReplicatedStorage = game.ReplicatedStorage;
+    local Remotes = ReplicatedStorage.Remotes;
+
+    if self.Values.PartSelected.Value ~= nil then
+        self:Toggle();
+        
+        Remotes.Throw:FireServer(self.Values.PartSelected.Value);
     end
 end
 
